@@ -26,6 +26,12 @@ public class TaskController : ControllerBase
         return _context.Tasks.ToList<Models.Task>();
     }
 
+    [HttpGet("{id}")]
+    public Models.Task? GetTaskById([FromRoute]int id)
+    {
+        return _context.Tasks.Find(id);
+    }
+
     [HttpPost]
     public Models.Task CreateTask([FromBody]Models.Task newTask)
     {
@@ -35,12 +41,31 @@ public class TaskController : ControllerBase
         return newTask;
     }
 
-    [HttpDelete("{id}")]
+    [HttpPut("{TaskId}")]
+    public String UpdateTask([FromRoute]int TaskId, [FromBody]Models.Task newTask)
+    {
+        var oldTask = _context.Tasks.Find(TaskId);
+        if(oldTask != null) {
+            oldTask.Title = newTask.Title;
+            _context.SaveChanges();
+
+            return "Task updated successfully";
+        }
+
+        return "Task does not exist";
+    }
+
+    [HttpDelete("{TaskId}")]
     public String DeleteTask([FromRoute]int TaskId)
     {
         var task = _context.Tasks.Find(TaskId);
-        _ = _context.Tasks.Remove(task);
+        if(task != null) {
+            _ = _context.Tasks.Remove(task);
+            _context.SaveChanges();
+        
+            return "Task deleted successfully";
+        }
 
-        return "Task deleted successfully";
+        return "Task not found";
     }
 }
